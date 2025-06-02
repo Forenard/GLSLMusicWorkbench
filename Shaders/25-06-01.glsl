@@ -222,7 +222,9 @@ vec4 swseq16(float t, float tps, int seq) {
      nextTime - t
    );
  }
-
+float j_wouf(float x) {
+  return 1.0 / (1.0 + exp(-50.0 * (x - 0.15))) * 1.0 / (1.0 + exp(-30.0 * (0.8 - x))) / (1.0 + exp(-6.0 * (0.9 - x)));
+}
 // time:(a beat, a bar, sixteen bars, infinity)
 vec2 mainAudio( vec4 time ) {  
   vec4 lt=time*bpm/60.0;
@@ -233,8 +235,8 @@ vec2 mainAudio( vec4 time ) {
   {// kick
     float t=time.y;
     vec4 seq=seq16(t,b2t*.25,0x8888);
-    // dest+=exp(-seq.t*3.)*shotgun(440.*t,1.,p1,p0);
-    // dest+=kick(seq.t);
+    // dest+=exp(-seq.t*3.)*shotgun(200.*t,1.,.5,.5);
+    dest+=kick(seq.t);
     // https://scrapbox.io/0b5vr/Zero_Crossing
     s=smoothstep(.0,.8*b2t,t)*smoothstep(.0,.001,seq.q);
   }
@@ -251,10 +253,13 @@ vec2 mainAudio( vec4 time ) {
     float t=time.x;
 
     // https://scrapbox.io/0b5vr/SuperSaw
-    dest += exp(-3.*t)*
-      vec2(cheapfiltersaw(t*p2f(60.+float(it.y)),.01),
+    // dest += exp(-3.*t)*
+    //   vec2(cheapfiltersaw(t*p2f(60.+float(it.y)),.01),
+    //   cheapfiltersaw(t*p2f(59.9+float(it.y)),.02)
+    //   )*rot(pi*t*p2f(100.*p0));
+    dest+=j_wouf(t)*vec2(cheapfiltersaw(t*p2f(60.+float(it.y)),.01),
       cheapfiltersaw(t*p2f(59.9+float(it.y)),.02)
-      )*rot(pi*t*p2f(100.*p0));
+      )*rot(pi*t*p2f(100.*p0))*.1;
   }
   
   
